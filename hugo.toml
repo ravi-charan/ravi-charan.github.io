@@ -1,0 +1,45 @@
+baseURL = "https://yellankiravicharan.github.io/"
+languageCode = "en-us"
+title = "Yellanki Ravi Charan"
+theme = "PaperMod"
+
+[pagination]
+pagerSize = 10
+
+[params]
+author = "Yellanki Ravi Charan"
+
+defaultTheme = "auto"
+ShowReadingTime = true
+ShowShareButtons = true
+ShowPostNavLinks = true
+ShowBreadCrumbs = true
+
+description = "Cloud | DevOps | Automation | SRE | Continuous Learning"
+
+[menu]
+
+[[menu.main]]
+name = "About"
+url = "/about/"
+weight = 1
+
+[[menu.main]]
+name = "AWS"
+url = "/tags/aws/"
+weight = 2
+
+[[menu.main]]
+name = "Terraform"
+url = "/tags/terraform/"
+weight = 3
+
+[[menu.main]]
+name = "Kubernetes"
+url = "/tags/kubernetes/"
+weight = 4
+
+[[menu.main]]
+name = "DevOps"
+url = "/tags/devops/"
+weight = 5
