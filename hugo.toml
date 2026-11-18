@@ -8,16 +8,36 @@ pagerSize = 10
 
 [params]
 author = "Yellanki Ravi Charan"
+description = "Cloud | DevOps | Automation | SRE | Continuous Learning"
 
-defaultTheme = "auto"
+defaultTheme = "dark"
+disableThemeToggle = false
+
 ShowReadingTime = true
+ShowCodeCopyButtons = true
 ShowShareButtons = true
 ShowPostNavLinks = true
 ShowBreadCrumbs = true
+ShowToc = true
 
-description = "Cloud | DevOps | Automation | SRE | Continuous Learning"
+homeInfoParams = { 
+  Title = "Hi, I'm Yellanki Ravi Charan 👋",
+  Content = "Senior DevOps Engineer | AWS | Azure | Terraform | Kubernetes | Automation | Continuous Learning"
+}
 
-[menu]
+[[params.socialIcons]]
+name = "github"
+url = "https://github.com/ravi-charan"
+
+# Replace with your LinkedIn profile
+[[params.socialIcons]]
+name = "linkedin"
+url = "https://linkedin.com/in/your-linkedin-profile"
+
+# Replace with your email
+[[params.socialIcons]]
+name = "email"
+url = "mailto:your-email@gmail.com"
 
 [[menu.main]]
 name = "About"
@@ -25,21 +45,26 @@ url = "/about/"
 weight = 1
 
 [[menu.main]]
+name = "Blog"
+url = "/posts/"
+weight = 2
+
+[[menu.main]]
 name = "AWS"
 url = "/tags/aws/"
-weight = 2
+weight = 3
 
 [[menu.main]]
 name = "Terraform"
 url = "/tags/terraform/"
-weight = 3
+weight = 4
 
 [[menu.main]]
 name = "Kubernetes"
 url = "/tags/kubernetes/"
-weight = 4
+weight = 5
 
 [[menu.main]]
 name = "DevOps"
 url = "/tags/devops/"
-weight = 5
+weight = 6
