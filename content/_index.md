@@ -19,7 +19,7 @@ Welcome to my learning journal where I document my daily learnings, projects, De
 - DevOps Automation
 - Infrastructure as Code
 
-![Ravi Charan](images/profile.jpg)
+![Ravi Charan avatar](images/profile-avatar.svg)
 
 ## Latest Learnings
 

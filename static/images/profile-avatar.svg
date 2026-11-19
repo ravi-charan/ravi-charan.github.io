@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" role="img" aria-labelledby="avatar-title">
+  <title id="avatar-title">Ravi Charan</title>
+  <circle cx="80" cy="80" r="76" fill="#2563eb"/>
+  <text x="80" y="81" fill="#ffffff" font-family="Arial, sans-serif" font-size="54" font-weight="700" text-anchor="middle" dominant-baseline="middle">RC</text>
+</svg>
