@@ -1,10 +1,8 @@
-baseURL = "https://ravi-charan.github.io/yellankiravicharan.github.io/"
+baseURL = "/"
 languageCode = "en-us"
 title = "Yellanki Ravi Charan"
 theme = "PaperMod"
 
-canonifyURLs = true
-relativeURLs = true
 
 [pagination]
 pagerSize = 10
