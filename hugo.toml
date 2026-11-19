@@ -1,4 +1,4 @@
-baseURL = "https://ravi-charan.github.io/yellankiravicharan.github.io/"
+baseURL = "https://ravi-charan.github.io/"
 locale = "en-us"
 title = "Yellanki Ravi Charan"
 theme = "PaperMod"
@@ -9,7 +9,7 @@ pagerSize = 10
 
 [params]
 author = "Yellanki Ravi Charan"
-description = "Cloud | DevOps | Automation | SRE | Continuous Learning"
+description = "Senior DevOps Engineer | SRE | AWS | Terraform | CI/CD | Kubernetes | Automation | Docker | Ansible"
 
 defaultTheme = "dark"
 disableThemeToggle = false
@@ -23,7 +23,7 @@ ShowToc = true
 
 homeInfoParams = { 
   Title = "Hi, I'm Yellanki Ravi Charan 👋",
-  Content = "Senior DevOps Engineer | AWS | Azure | Terraform | Kubernetes | Automation | Continuous Learning"
+  Content = "Working as a Senior DevOps Engineer | SRE, using AWS, Terraform, CI/CD, Kubernetes, Automation, Docker, and Ansible."
 }
 
 [[params.socialIcons]]

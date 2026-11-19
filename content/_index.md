@@ -4,9 +4,9 @@ title: "Home"
 
 # Yellanki Ravi Charan
 
-## Senior DevOps Engineer
+## Senior DevOps Engineer | SRE
 
-Cloud | AWS | Terraform | Kubernetes | Automation
+AWS | Terraform | CI/CD | Kubernetes | Automation | Docker | Ansible
 
 Welcome to my learning journal where I document my daily learnings, projects, DevOps practices, cloud architectures, and certification journey.
 
