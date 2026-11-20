@@ -50,12 +50,16 @@ A Dockerfile contains the steps Docker uses to build an image:
 
 ```dockerfile
 FROM nginx:alpine
-COPY site/ /usr/share/nginx/html/
+LABEL org.opencontainers.image.title="docker-basics-web"
+WORKDIR /usr/share/nginx/html
+COPY site/ ./
 EXPOSE 80
 ```
 
 - `FROM` selects a small Nginx base image.
-- `COPY` adds the website files to the image.
+- `LABEL` adds searchable metadata to the image.
+- `WORKDIR` sets the working directory for following instructions.
+- `COPY` adds the website files to that directory in the image.
 - `EXPOSE` documents the port used by Nginx.
 
 ## 3. Build an Image and Run a Container
@@ -63,35 +67,52 @@ EXPOSE 80
 Run these commands from the `docker-basics` directory:
 
 ```sh
+docker version
 docker build -t docker-basics-web:1.0 .
 docker image ls
+docker image inspect docker-basics-web:1.0
 docker run -d --name docker-basics-web -p 8080:80 docker-basics-web:1.0
 docker ps
 ```
 
 The `-t` option tags the image, `-d` runs the container in the background, and `-p 8080:80` maps port 8080 on the computer to port 80 in the container. Open `http://localhost:8080` to view the page.
 
-To stop and remove the container:
+## 4. Inspect and Manage Containers
+
+These commands help inspect the running web container:
+
+```sh
+docker ps -a
+docker logs --tail 50 docker-basics-web
+docker exec -it docker-basics-web sh
+docker inspect docker-basics-web
+docker stats --no-stream docker-basics-web
+```
+
+`docker exec -it ... sh` opens a shell inside the running container. Type `exit` to leave it. `docker logs` shows application output, and `docker stats` shows resource use.
+
+Stop and remove the container when finished:
 
 ```sh
 docker stop docker-basics-web
 docker rm docker-basics-web
 ```
 
-## 4. Create and Use a Named Volume
+## 5. Create and Use a Named Volume
 
 Volumes keep data outside a container's writable layer, so it can remain available after the container is removed.
 
 ```sh
 docker volume create docker-demo-data
 docker volume ls
+docker volume inspect docker-demo-data
 docker run --rm --mount source=docker-demo-data,target=/data alpine sh -c 'echo "Saved in a Docker volume" > /data/message.txt'
 docker run --rm --mount source=docker-demo-data,target=/data alpine cat /data/message.txt
 ```
 
 The second container can read the message written by the first because both use the same named volume.
 
-## 5. Map a Host Directory
+## 6. Map a Host Directory
 
 A **bind mount** maps a directory on the computer into a container. It is useful during development because host-file changes are immediately visible in the container.
 
@@ -104,7 +125,23 @@ volumes:
 
 Here, `:ro` makes the mounted directory read-only inside the container.
 
-## 6. Run the App with Docker Compose
+## 7. Connect Containers with a Network
+
+A user-defined network lets containers reach each other by container name:
+
+```sh
+docker network create docker-demo-net
+docker network ls
+docker run -d --name web-one --network docker-demo-net nginx:alpine
+docker run --rm --network docker-demo-net busybox:1.36 wget -qO- http://web-one
+docker network inspect docker-demo-net
+docker rm -f web-one
+docker network rm docker-demo-net
+```
+
+The temporary BusyBox container requests the Nginx page using `web-one` as its hostname. The user-defined network provides that name lookup.
+
+## 8. Run the App with Docker Compose
 
 Create `compose.yaml`:
 
@@ -121,16 +158,27 @@ services:
 Compose builds the image and starts the service:
 
 ```sh
+docker compose config
 docker compose up --build -d
 docker compose ps
-docker compose logs web
+docker compose logs -f web
+docker compose exec web sh
+docker compose restart web
 ```
 
-Open `http://localhost:8080`. To stop and remove the Compose container and network:
+Type `exit` to leave the shell, then open `http://localhost:8080`. To stop and remove the Compose container and network:
 
 ```sh
 docker compose down
 ```
+
+## 9. Check Docker Disk Usage
+
+```sh
+docker system df
+```
+
+This shows disk space used by images, containers, and volumes. Review data before using cleanup commands such as `docker volume rm` or `docker system prune`, since removing volumes or unused resources can delete data you may want to keep.
 
 ## Key Takeaways
 
