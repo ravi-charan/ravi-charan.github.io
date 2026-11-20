@@ -77,62 +77,82 @@ CMD ["nginx", "-g", "daemon off;"]
 Run these commands from the `docker-basics` directory:
 
 ```sh
-docker version # Verify the Docker client can connect to the Docker Engine.
-docker build --build-arg APP_VERSION=1.0 -t docker-basics-web:1.0 . # Build an image from this folder's Dockerfile.
-docker image ls # List images stored on this computer.
-docker image inspect docker-basics-web:1.0 # View details and labels for this image.
-docker run -d --name docker-basics-web -p 8080:80 docker-basics-web:1.0 # Start a container and publish port 80 as port 8080.
-docker ps # List running containers.
+docker version
+docker build --build-arg APP_VERSION=1.0 -t docker-basics-web:1.0 .
+docker image ls
+docker image inspect docker-basics-web:1.0
+docker run -d --name docker-basics-web -p 8080:80 docker-basics-web:1.0
+docker ps
 ```
 
-The `-t` option tags the image, `-d` runs the container in the background, and `-p 8080:80` maps port 8080 on the computer to port 80 in the container. Open `http://localhost:8080` to view the page.
+- `docker version` checks the Docker client and engine versions and confirms they can communicate.
+- `docker build` builds an image from the Dockerfile in the current folder. `--build-arg` sets `APP_VERSION`, and `-t` gives the image a name and tag.
+- `docker image ls` lists images stored locally.
+- `docker image inspect` displays detailed metadata, including the image labels.
+- `docker run` creates and starts a container. `-d` runs it in the background, `--name` assigns a readable name, and `-p 8080:80` maps host port 8080 to container port 80.
+- `docker ps` lists running containers.
+
+Open `http://localhost:8080` to view the page.
 
 To try a different build argument, build another image version:
 
 ```sh
-docker build --build-arg APP_VERSION=1.1 -t docker-basics-web:1.1 . # Override the Dockerfile's default image version.
+docker build --build-arg APP_VERSION=1.1 -t docker-basics-web:1.1 .
 ```
 
-After the container starts, Docker shows its health state in `docker ps`. You can also check it directly:
+This builds a second image with `APP_VERSION` set to `1.1` and tags it as `docker-basics-web:1.1`. After the container starts, Docker shows its health state in `docker ps`. You can also check it directly:
 
 ```sh
-docker inspect --format "{{.State.Health.Status}}" docker-basics-web # Print the container's health-check status.
+docker inspect --format "{{.State.Health.Status}}" docker-basics-web
 ```
+
+The `--format` option prints only the health-check status instead of the full inspection output.
 
 ## 4. Inspect and Manage Containers
 
 These commands help inspect the running web container:
 
 ```sh
-docker ps -a # Show running and stopped containers.
-docker logs --tail 50 docker-basics-web # Show the most recent 50 log lines.
-docker exec -it docker-basics-web sh # Open an interactive shell inside the running container.
-docker inspect docker-basics-web # Show detailed container configuration and state.
-docker stats --no-stream docker-basics-web # Show a one-time CPU and memory usage snapshot.
+docker ps -a
+docker logs --tail 50 docker-basics-web
+docker exec -it docker-basics-web sh
+docker inspect docker-basics-web
+docker stats --no-stream docker-basics-web
 ```
 
-`docker exec -it ... sh` opens a shell inside the running container. Type `exit` to leave it. `docker logs` shows application output, and `docker stats` shows resource use.
+- `docker ps -a` includes stopped containers as well as running ones.
+- `docker logs --tail 50` prints the most recent 50 log lines.
+- `docker exec -it ... sh` opens an interactive shell inside the running container. Type `exit` to leave it.
+- `docker inspect` displays detailed container configuration and state.
+- `docker stats --no-stream` prints a one-time CPU and memory usage snapshot.
 
 Stop and remove the container when finished:
 
 ```sh
-docker stop docker-basics-web # Ask the container to stop gracefully.
-docker rm docker-basics-web # Remove the stopped container; its image remains.
+docker stop docker-basics-web
+docker rm docker-basics-web
 ```
+
+- `docker stop` asks the container to shut down gracefully.
+- `docker rm` removes the stopped container; the image remains available.
 
 ## 5. Create and Use a Named Volume
 
 Volumes keep data outside a container's writable layer, so it can remain available after the container is removed.
 
 ```sh
-docker volume create docker-demo-data # Create a Docker-managed named volume.
-docker volume ls # List available named volumes.
-docker volume inspect docker-demo-data # Show where Docker stores this volume and its settings.
-docker run --rm --mount source=docker-demo-data,target=/data alpine sh -c 'echo "Saved in a Docker volume" > /data/message.txt' # Write a file into the mounted volume.
-docker run --rm --mount source=docker-demo-data,target=/data alpine cat /data/message.txt # Read the file from a new temporary container.
+docker volume create docker-demo-data
+docker volume ls
+docker volume inspect docker-demo-data
+docker run --rm --mount source=docker-demo-data,target=/data alpine sh -c 'echo "Saved in a Docker volume" > /data/message.txt'
+docker run --rm --mount source=docker-demo-data,target=/data alpine cat /data/message.txt
 ```
 
-The second container can read the message written by the first because both use the same named volume.
+- `docker volume create` creates a named volume managed by Docker.
+- `docker volume ls` lists available volumes.
+- `docker volume inspect` shows details about the named volume.
+- The first `docker run` mounts the volume at `/data` and writes a message there. `--rm` removes the temporary container when the command finishes.
+- The second `docker run` mounts the same volume in a new container and reads the saved message.
 
 ## 6. Map a Host Directory
 
@@ -145,23 +165,27 @@ volumes:
   - ./site:/usr/share/nginx/html:ro
 ```
 
-Here, `:ro` makes the mounted directory read-only inside the container.
+This maps the host's `site` directory to Nginx's web directory. The `:ro` suffix makes the mount read-only inside the container.
 
 ## 7. Connect Containers with a Network
 
 A user-defined network lets containers reach each other by container name:
 
 ```sh
-docker network create docker-demo-net # Create an isolated user-defined network.
-docker network ls # List Docker networks.
-docker run -d --name web-one --network docker-demo-net nginx:alpine # Start Nginx attached to that network.
-docker run --rm --network docker-demo-net busybox:1.36 wget -qO- http://web-one # Request Nginx by its container name.
-docker network inspect docker-demo-net # Show network members and configuration.
-docker rm -f web-one # Stop and remove the Nginx container.
-docker network rm docker-demo-net # Remove the now-unused network.
+docker network create docker-demo-net
+docker network ls
+docker run -d --name web-one --network docker-demo-net nginx:alpine
+docker run --rm --network docker-demo-net busybox:1.36 wget -qO- http://web-one
+docker network inspect docker-demo-net
+docker rm -f web-one
+docker network rm docker-demo-net
 ```
 
-The temporary BusyBox container requests the Nginx page using `web-one` as its hostname. The user-defined network provides that name lookup.
+- `docker network create` creates an isolated user-defined network; `docker network ls` lists networks.
+- The first `docker run` starts Nginx attached to that network.
+- The second `docker run` starts a temporary BusyBox container and requests the Nginx page using the container name `web-one`.
+- `docker network inspect` shows network settings and attached containers.
+- `docker rm -f` stops and removes the Nginx container. `docker network rm` removes the now-unused network.
 
 ## 8. Run the App with Docker Compose
 
@@ -170,29 +194,40 @@ Create `compose.yaml`:
 ```yaml
 services:
   web:
-    build: . # Build an image from the Dockerfile in this folder.
+    build: .
     ports:
-      - "8080:80" # Send host port 8080 traffic to container port 80.
+      - "8080:80"
     volumes:
-      - ./site:/usr/share/nginx/html:ro # Mount local files read-only into Nginx.
+      - ./site:/usr/share/nginx/html:ro
 ```
 
-Compose builds the image and starts the service:
+`build: .` tells Compose to build from the current folder. `ports` publishes host port 8080 as container port 80, and `volumes` mounts the local site read-only for Nginx.
+
+Run these commands to manage the service:
 
 ```sh
-docker compose config # Validate and display the resolved Compose configuration.
-docker compose up --build -d # Build images if needed and start services in the background.
-docker compose ps # Show the services and their status.
-docker compose logs -f web # Follow the web service logs; Ctrl+C stops following logs.
-docker compose exec web sh # Open a shell in the running web service.
-docker compose restart web # Restart only the web service.
+docker compose config
+docker compose up --build -d
+docker compose ps
+docker compose logs -f web
+docker compose exec web sh
+docker compose restart web
 ```
 
-Type `exit` to leave the shell, then open `http://localhost:8080`. To stop and remove the Compose container and network:
+- `docker compose config` validates and displays the resolved Compose configuration.
+- `docker compose up --build -d` builds the image if needed and starts services in the background.
+- `docker compose ps` shows service status.
+- `docker compose logs -f web` follows the web service logs; Ctrl+C stops following the logs, not the service.
+- `docker compose exec web sh` opens a shell in the running service; type `exit` to leave it.
+- `docker compose restart web` restarts only the web service.
+
+Open `http://localhost:8080`. Stop and remove the Compose containers and network with:
 
 ```sh
-docker compose down # Stop and remove the Compose containers and network.
+docker compose down
 ```
+
+`docker compose down` stops and removes the services and network created by Compose.
 
 ## 9. Build a Python API Image
 
@@ -272,25 +307,33 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
 From the repository root, build and run the image:
 
 ```sh
-cd examples/python-api # Change to the folder containing this example's Dockerfile.
-docker build -t python-api:1.0 . # Build the API image using this directory as its context.
-docker image ls # Confirm the new image is available locally.
-docker run -d --name python-api -p 8080:8080 python-api:1.0 # Start the API and publish its port.
-docker ps # Check that the API container is running.
-docker logs python-api # View the API's startup messages and runtime logs.
+cd examples/python-api
+docker build -t python-api:1.0 .
+docker image ls
+docker run -d --name python-api -p 8080:8080 python-api:1.0
+docker ps
+docker logs python-api
 ```
+
+- `cd examples/python-api` changes to the folder containing this example's Dockerfile.
+- `docker build` packages the API and its dependencies into an image.
+- `docker image ls` confirms the image exists locally.
+- `docker run` starts the API in the background and maps host port 8080 to container port 8080.
+- `docker ps` confirms the container is running, and `docker logs` shows its startup messages and runtime output.
 
 Open `http://localhost:8080` to see the response or `http://localhost:8080/docs` to explore the API. Stop and remove the container when finished:
 
 ```sh
-docker stop python-api # Stop the API container gracefully.
-docker rm python-api # Remove the stopped container while keeping the image.
+docker stop python-api
+docker rm python-api
 ```
+
+`docker stop` shuts down the API container gracefully. `docker rm` removes the stopped container but keeps the image.
 
 ## 10. Check Docker Disk Usage
 
 ```sh
-docker system df # Summarize Docker's image, container, and volume disk usage.
+docker system df
 ```
 
 This shows disk space used by images, containers, and volumes. Review data before using cleanup commands such as `docker volume rm` or `docker system prune`, since removing volumes or unused resources can delete data you may want to keep.
