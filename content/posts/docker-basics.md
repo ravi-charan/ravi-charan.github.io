@@ -50,17 +50,27 @@ A Dockerfile contains the steps Docker uses to build an image:
 
 ```dockerfile
 FROM nginx:alpine
-LABEL org.opencontainers.image.title="docker-basics-web"
+ARG APP_VERSION=1.0
+LABEL org.opencontainers.image.title="docker-basics-web" \
+      org.opencontainers.image.version="${APP_VERSION}"
 WORKDIR /usr/share/nginx/html
 COPY site/ ./
+RUN nginx -t
 EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget -q --spider http://127.0.0.1/ || exit 1
+CMD ["nginx", "-g", "daemon off;"]
 ```
 
 - `FROM` selects a small Nginx base image.
-- `LABEL` adds searchable metadata to the image.
+- `ARG` defines a value that can be set while building the image.
+- `LABEL` stores searchable image metadata.
 - `WORKDIR` sets the working directory for following instructions.
 - `COPY` adds the website files to that directory in the image.
+- `RUN` checks the Nginx configuration while the image is being built.
 - `EXPOSE` documents the port used by Nginx.
+- `HEALTHCHECK` periodically checks that Nginx responds to an HTTP request.
+- `CMD` sets the default command that starts Nginx when the container runs.
 
 ## 3. Build an Image and Run a Container
 
@@ -68,7 +78,7 @@ Run these commands from the `docker-basics` directory:
 
 ```sh
 docker version
-docker build -t docker-basics-web:1.0 .
+docker build --build-arg APP_VERSION=1.0 -t docker-basics-web:1.0 .
 docker image ls
 docker image inspect docker-basics-web:1.0
 docker run -d --name docker-basics-web -p 8080:80 docker-basics-web:1.0
@@ -76,6 +86,18 @@ docker ps
 ```
 
 The `-t` option tags the image, `-d` runs the container in the background, and `-p 8080:80` maps port 8080 on the computer to port 80 in the container. Open `http://localhost:8080` to view the page.
+
+To try a different build argument, build another image version:
+
+```sh
+docker build --build-arg APP_VERSION=1.1 -t docker-basics-web:1.1 .
+```
+
+After the container starts, Docker shows its health state in `docker ps`. You can also check it directly:
+
+```sh
+docker inspect --format "{{.State.Health.Status}}" docker-basics-web
+```
 
 ## 4. Inspect and Manage Containers
 
