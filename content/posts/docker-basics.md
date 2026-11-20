@@ -194,7 +194,97 @@ Type `exit` to leave the shell, then open `http://localhost:8080`. To stop and r
 docker compose down
 ```
 
-## 9. Check Docker Disk Usage
+## 9. Build a Python API Image
+
+The earlier example serves static files with Nginx. This second example packages a small FastAPI app and runs it as a non-root user.
+
+Create this directory structure:
+
+```text
+python-api/
+├── Dockerfile
+├── requirements.txt
+└── src/
+    └── app/
+        ├── __init__.py
+        └── main.py
+```
+
+In `requirements.txt`, list the Python packages:
+
+```text
+fastapi
+uvicorn[standard]
+```
+
+In `src/app/main.py`, create a small API:
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI(title="Docker Learning API")
+
+
+@app.get("/")
+def home():
+    return {"message": "The API is running in Docker"}
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy"}
+```
+
+Create the `Dockerfile`:
+
+```dockerfile
+# Base image
+FROM python:3.13
+
+# Set working directory
+WORKDIR /usr/local/app
+
+# Copy dependency list and install packages
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application source
+COPY src ./src
+
+# Make app.main importable from the src directory
+ENV PYTHONPATH=/usr/local/app/src
+
+# Expose application port
+EXPOSE 8080
+
+# Create and use a non-root user
+RUN useradd --create-home app
+USER app
+
+# Default command
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+```
+
+`PYTHONPATH` is needed because the Python package is under `src/`. `EXPOSE` documents the app's port; `-p` below publishes it on the host. `USER app` runs the service without root privileges.
+
+From the `python-api` directory, build and run the image:
+
+```sh
+docker build -t python-api:1.0 .
+docker image ls
+docker run -d --name python-api -p 8080:8080 python-api:1.0
+docker ps
+docker logs python-api
+```
+
+Open `http://localhost:8080` to see the response or `http://localhost:8080/docs` to explore the API. Stop and remove the container when finished:
+
+```sh
+docker stop python-api
+docker rm python-api
+```
+
+## 10. Check Docker Disk Usage
 
 ```sh
 docker system df
