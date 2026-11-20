@@ -198,10 +198,10 @@ docker compose down
 
 The earlier example serves static files with Nginx. This second example packages a small FastAPI app and runs it as a non-root user.
 
-Create this directory structure:
+The runnable example is also in the repository under `examples/python-api/`. Its directory structure is:
 
 ```text
-python-api/
+examples/python-api/
 ├── Dockerfile
 ├── requirements.txt
 └── src/
@@ -235,7 +235,7 @@ def health_check():
     return {"status": "healthy"}
 ```
 
-Create the `Dockerfile`:
+The `Dockerfile`:
 
 ```dockerfile
 # Base image
@@ -257,8 +257,8 @@ ENV PYTHONPATH=/usr/local/app/src
 # Expose application port
 EXPOSE 8080
 
-# Create and use a non-root user
-RUN useradd --create-home app
+# Create a non-root user and give it access to the application files
+RUN useradd --create-home app && chown -R app:app /usr/local/app
 USER app
 
 # Default command
@@ -267,9 +267,10 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
 `PYTHONPATH` is needed because the Python package is under `src/`. `EXPOSE` documents the app's port; `-p` below publishes it on the host. `USER app` runs the service without root privileges.
 
-From the `python-api` directory, build and run the image:
+From the repository root, build and run the image:
 
 ```sh
+cd examples/python-api
 docker build -t python-api:1.0 .
 docker image ls
 docker run -d --name python-api -p 8080:8080 python-api:1.0
