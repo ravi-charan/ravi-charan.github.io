@@ -1,5 +1,5 @@
 ---
-title: "Docker Basics: Images, Volumes, and Compose"
+title: "Docker Basics: Images, Volumes, Compose, and FastAPI"
 date: 2026-11-20
 draft: false
 tags:
@@ -13,6 +13,8 @@ tags:
 Today I started learning Docker fundamentals: writing a Dockerfile, building an image, running a container, mapping storage, and using Docker Compose.
 
 An **image** is a packaged template. A **container** is a running instance of that image.
+
+This guide has two separate examples: an Nginx site for learning image builds, volumes, networks, and Compose, followed by a Python API built with FastAPI.
 
 > These examples assume Docker Desktop or Docker Engine is installed and running.
 
@@ -238,12 +240,25 @@ The runnable example is also in the repository under `examples/python-api/`. Its
 ```text
 examples/python-api/
 ├── Dockerfile
+├── .dockerignore
 ├── requirements.txt
 └── src/
     └── app/
         ├── __init__.py
         └── main.py
 ```
+
+In `.dockerignore`, list files that should not be sent to Docker as part of the build context:
+
+```text
+.git
+.venv/
+__pycache__/
+*.py[cod]
+.env
+```
+
+This keeps Git history, local Python environments, bytecode caches, and local environment files out of the image build context. In particular, excluding `.env` helps prevent accidentally sending local secrets to the builder.
 
 In `requirements.txt`, list the Python packages:
 
